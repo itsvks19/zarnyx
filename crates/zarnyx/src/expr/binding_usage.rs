@@ -1,6 +1,28 @@
 use crate::utils;
 use crate::{env::Env, val::Val};
 
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct BindingUsage {
+    pub(crate) name: String,
+}
+
+impl BindingUsage {
+    pub(super) fn new(s: &str) -> Result<(&str, Self), String> {
+        let (s, name) = utils::extract_ident(s)?;
+
+        Ok((
+            s,
+            Self {
+                name: name.to_string(),
+            },
+        ))
+    }
+
+    pub(super) fn eval(&self, env: &Env) -> Result<Val, String> {
+        env.get_binding(&self.name)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -43,27 +65,5 @@ mod tests {
             .eval(&empty_env),
             Err("binding with name ‘i_dont_exist’ does not exist".to_string()),
         );
-    }
-}
-
-#[derive(Debug, PartialEq)]
-pub(crate) struct BindingUsage {
-    pub(super) name: String,
-}
-
-impl BindingUsage {
-    pub(super) fn new(s: &str) -> Result<(&str, Self), String> {
-        let (s, name) = utils::extract_ident(s)?;
-
-        Ok((
-            s,
-            Self {
-                name: name.to_string(),
-            },
-        ))
-    }
-
-    pub(super) fn eval(&self, env: &Env) -> Result<Val, String> {
-        env.get_binding_value(&self.name)
     }
 }

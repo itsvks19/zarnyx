@@ -1,9 +1,9 @@
 #[allow(dead_code)]
 mod binding_def;
 mod expr;
+mod func_def;
 mod stmt;
 mod val;
-
 mod env;
 mod utils;
 

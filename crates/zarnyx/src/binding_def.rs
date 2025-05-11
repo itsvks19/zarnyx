@@ -1,6 +1,6 @@
 use crate::{env::Env, expr::Expr, utils};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) struct BindingDef {
     pub(crate) name: String,
     pub(crate) val: Expr,
@@ -28,7 +28,7 @@ impl BindingDef {
         ))
     }
 
-    pub(crate) fn eval(&self, env: &mut Env) -> Result<(), String>{
+    pub(crate) fn eval(&self, env: &mut Env) -> Result<(), String> {
         env.store_binding(self.name.clone(), self.val.eval(env)?);
         Ok(())
     }
@@ -48,8 +48,8 @@ mod tests {
                 BindingDef {
                     name: "a".to_string(),
                     val: Expr::Operation {
-                        lhs: Number(10),
-                        rhs: Number(2),
+                        lhs: Box::new(Expr::Number(Number(10))),
+                        rhs: Box::new(Expr::Number(Number(2))),
                         op: Op::Div,
                     },
                 },
