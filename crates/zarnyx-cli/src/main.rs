@@ -1,5 +1,5 @@
 use std::io::{self, Write};
-use zarnyx::parser::Parser;
+use zarnyx::parser::parse;
 
 fn main() -> io::Result<()> {
     let stdin = io::stdin();
@@ -13,7 +13,7 @@ fn main() -> io::Result<()> {
 
         stdin.read_line(&mut input)?;
 
-        let parse = Parser::new(&input).parse();
+        let parse = parse(&input);
         println!("{}", parse.debug_tree());
 
         input.clear();
