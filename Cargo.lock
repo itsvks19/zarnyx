@@ -59,6 +59,7 @@ name = "lexer"
 version = "0.1.0"
 dependencies = [
  "logos",
+ "text-size",
 ]
 
 [[package]]
@@ -120,6 +121,7 @@ dependencies = [
  "lexer",
  "rowan",
  "syntax",
+ "text-size",
 ]
 
 [[package]]

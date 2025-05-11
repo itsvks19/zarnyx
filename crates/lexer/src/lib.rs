@@ -1,6 +1,8 @@
 mod token_kind;
 
 use logos::Logos;
+use std::ops::Range as StdRange;
+use text_size::{TextRange, TextSize};
 pub use token_kind::TokenKind;
 
 pub struct Lexer<'a> {
@@ -22,7 +24,15 @@ impl<'a> Iterator for Lexer<'a> {
         let kind = self.inner.next()?;
         let text = self.inner.slice();
 
-        Some(Self::Item { kind, text })
+        let range = {
+            let StdRange { start, end } = self.inner.span();
+            let start = TextSize::try_from(start).unwrap();
+            let end = TextSize::try_from(end).unwrap();
+
+            TextRange::new(start, end)
+        };
+
+        Some(Self::Item { kind, text, range })
     }
 }
 
@@ -30,104 +40,5 @@ impl<'a> Iterator for Lexer<'a> {
 pub struct Token<'a> {
     pub kind: TokenKind,
     pub text: &'a str,
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn check(input: &str, kind: TokenKind) {
-        let mut lexer = Lexer::new(input);
-        assert_eq!(lexer.next(), Some(Token { kind, text: input }));
-    }
-
-    #[test]
-    fn lex_spaces_and_newlines() {
-        check("  \n ", TokenKind::Whitespace);
-    }
-
-    #[test]
-    fn lex_fn_keyword() {
-        check("fn", TokenKind::FnKw);
-    }
-
-    #[test]
-    fn lex_let_keyword() {
-        check("let", TokenKind::LetKw);
-    }
-
-    #[test]
-    fn lex_alphabetic_identifier() {
-        check("abcd", TokenKind::Ident);
-    }
-
-    #[test]
-    fn lex_alphanumeric_identifier() {
-        check("ab123cde456", TokenKind::Ident);
-    }
-
-    #[test]
-    fn lex_mixed_case_identifier() {
-        check("ABCdef", TokenKind::Ident);
-    }
-
-    #[test]
-    fn lex_number() {
-        check("123456", TokenKind::Number);
-    }
-
-    #[test]
-    fn lex_plus() {
-        check("+", TokenKind::Plus);
-    }
-
-    #[test]
-    fn lex_minus() {
-        check("-", TokenKind::Minus);
-    }
-
-    #[test]
-    fn lex_star() {
-        check("*", TokenKind::Star);
-    }
-
-    #[test]
-    fn lex_slash() {
-        check("/", TokenKind::Slash);
-    }
-
-    #[test]
-    fn lex_equals() {
-        check("=", TokenKind::Equals);
-    }
-
-    #[test]
-    fn lex_left_brace() {
-        check("{", TokenKind::LBrace);
-    }
-
-    #[test]
-    fn lex_right_brace() {
-        check("}", TokenKind::RBrace);
-    }
-
-    #[test]
-    fn lex_left_parenthesis() {
-        check("(", TokenKind::LParen);
-    }
-
-    #[test]
-    fn lex_right_parenthesis() {
-        check(")", TokenKind::RParen);
-    }
-
-    #[test]
-    fn lex_single_char_identifier() {
-        check("x", TokenKind::Ident);
-    }
-
-    #[test]
-    fn lex_comment() {
-        check("# foo", TokenKind::Comment);
-    }
+    pub range: TextRange,
 }

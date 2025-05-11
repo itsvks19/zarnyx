@@ -1,14 +1,16 @@
 use super::event::Event;
-use syntax::{SyntaxKind, ZarnyxLanguage};
-use lexer::Token;
-use rowan::{GreenNode, GreenNodeBuilder, Language};
+use crate::{Parse, parser::ParseError};
+use lexer::{Token, TokenKind};
+use rowan::{GreenNodeBuilder, Language};
 use std::mem;
+use syntax::ZarnyxLanguage;
 
 pub(crate) struct Sink<'t, 'input> {
     builder: GreenNodeBuilder<'static>,
     tokens: &'t [Token<'input>],
     cursor: usize,
     events: Vec<Event>,
+    errors: Vec<ParseError>,
 }
 
 impl<'t, 'input> Sink<'t, 'input> {
@@ -18,12 +20,11 @@ impl<'t, 'input> Sink<'t, 'input> {
             tokens,
             cursor: 0,
             events,
+            errors: Vec::new(),
         }
     }
 
-    pub(crate) fn finish(mut self) -> GreenNode {
-        dbg!(&self.events);
-
+    pub(crate) fn finish(mut self) -> Parse {
         for idx in 0..self.events.len() {
             match mem::replace(&mut self.events[idx], Event::Placeholder) {
                 Event::StartNode {
@@ -59,6 +60,7 @@ impl<'t, 'input> Sink<'t, 'input> {
                     }
                 }
                 Event::AddToken => self.token(),
+                Event::Error(error) => self.errors.push(error),
                 Event::FinishNode => self.builder.finish_node(),
                 Event::Placeholder => {}
             }
@@ -66,12 +68,15 @@ impl<'t, 'input> Sink<'t, 'input> {
             self.eat_trivia();
         }
 
-        self.builder.finish()
+        Parse {
+            green_node: self.builder.finish(),
+            errors: self.errors,
+        }
     }
 
     fn eat_trivia(&mut self) {
         while let Some(token) = self.tokens.get(self.cursor) {
-            if !SyntaxKind::from(token.kind).is_trivia() {
+            if !TokenKind::from(token.kind).is_trivia() {
                 break;
             }
 
@@ -80,7 +85,7 @@ impl<'t, 'input> Sink<'t, 'input> {
     }
 
     fn token(&mut self) {
-        let Token { kind, text } = self.tokens[self.cursor];
+        let Token { kind, text, .. } = self.tokens[self.cursor];
 
         self.builder
             .token(ZarnyxLanguage::kind_to_raw(kind.into()), text.into());
