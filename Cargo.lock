@@ -55,6 +55,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
 
 [[package]]
+name = "lexer"
+version = "0.1.0"
+dependencies = [
+ "logos",
+]
+
+[[package]]
 name = "logos"
 version = "0.11.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -103,6 +110,17 @@ name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
+
+[[package]]
+name = "parser"
+version = "0.1.0"
+dependencies = [
+ "drop_bomb",
+ "expect-test",
+ "lexer",
+ "rowan",
+ "syntax",
+]
 
 [[package]]
 name = "proc-macro2"
@@ -169,6 +187,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "syntax"
+version = "0.1.0"
+dependencies = [
+ "lexer",
+ "num-derive",
+ "num-traits",
+ "rowan",
+]
+
+[[package]]
 name = "text-size"
 version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -190,17 +218,5 @@ checksum = "7fcfc827f90e53a02eaef5e535ee14266c1d569214c6aa70133a624d8a3164ba"
 name = "zarnyx"
 version = "0.1.0"
 dependencies = [
- "drop_bomb",
- "expect-test",
- "logos",
- "num-derive",
- "num-traits",
- "rowan",
-]
-
-[[package]]
-name = "zarnyx-cli"
-version = "0.1.0"
-dependencies = [
- "zarnyx",
+ "parser",
 ]

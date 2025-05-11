@@ -1,5 +1,5 @@
+use parser::parse;
 use std::io::{self, Write};
-use zarnyx::parser::parse;
 
 fn main() -> io::Result<()> {
     let stdin = io::stdin();
