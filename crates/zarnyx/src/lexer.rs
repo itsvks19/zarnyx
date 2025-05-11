@@ -5,7 +5,7 @@ use num_derive::{FromPrimitive, ToPrimitive};
     Debug, Clone, Copy, PartialEq, Hash, Eq, PartialOrd, Ord, Logos, FromPrimitive, ToPrimitive,
 )]
 pub(crate) enum SyntaxKind {
-    #[regex("[ \n]+")]
+    #[regex(r"[ \t\n\r\f]+")]
     Whitespace,
 
     #[token("fn")]
@@ -55,7 +55,10 @@ pub(crate) enum SyntaxKind {
 
     Root,
     BinaryExpr,
+    Literal,
+    ParenExpr,
     PrefixExpr,
+    VariableRef,
 }
 
 impl SyntaxKind {
