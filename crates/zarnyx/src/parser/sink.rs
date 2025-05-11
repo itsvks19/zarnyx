@@ -1,23 +1,23 @@
 use super::event::Event;
 use crate::{
-    lexer::{Lexeme, SyntaxKind},
+    lexer::{SyntaxKind, Token},
     syntax::ZarnyxLanguage,
 };
 use rowan::{GreenNode, GreenNodeBuilder, Language};
 use std::mem;
 
-pub(super) struct Sink<'l, 'input> {
+pub(super) struct Sink<'t, 'input> {
     builder: GreenNodeBuilder<'static>,
-    lexemes: &'l [Lexeme<'input>],
+    tokens: &'t [Token<'input>],
     cursor: usize,
     events: Vec<Event>,
 }
 
-impl<'l, 'input> Sink<'l, 'input> {
-    pub(super) fn new(lexemes: &'l [Lexeme<'input>], events: Vec<Event>) -> Self {
+impl<'t, 'input> Sink<'t, 'input> {
+    pub(super) fn new(tokens: &'t [Token<'input>], events: Vec<Event>) -> Self {
         Self {
             builder: GreenNodeBuilder::new(),
-            lexemes,
+            tokens,
             cursor: 0,
             events,
         }
@@ -60,7 +60,7 @@ impl<'l, 'input> Sink<'l, 'input> {
                         self.builder.start_node(ZarnyxLanguage::kind_to_raw(kind));
                     }
                 }
-                Event::AddToken { kind, text } => self.token(kind, text),
+                Event::AddToken => self.token(),
                 Event::FinishNode => self.builder.finish_node(),
                 Event::Placeholder => {}
             }
@@ -71,18 +71,22 @@ impl<'l, 'input> Sink<'l, 'input> {
         self.builder.finish()
     }
 
-    fn token(&mut self, kind: SyntaxKind, text: String) {
-        self.builder.token(ZarnyxLanguage::kind_to_raw(kind), &text);
-        self.cursor += 1;
-    }
-
     fn eat_trivia(&mut self) {
-        while let Some(lexeme) = self.lexemes.get(self.cursor) {
-            if !lexeme.kind.is_trivia() {
+        while let Some(token) = self.tokens.get(self.cursor) {
+            if !token.kind.is_trivia() {
                 break;
             }
 
-            self.token(lexeme.kind, lexeme.text.into());
+            self.token();
         }
+    }
+
+    fn token(&mut self) {
+        let Token { kind, text } = self.tokens[self.cursor];
+
+        self.builder
+            .token(ZarnyxLanguage::kind_to_raw(kind), text.into());
+
+        self.cursor += 1;
     }
 }

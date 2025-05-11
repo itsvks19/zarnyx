@@ -6,10 +6,7 @@ pub(crate) enum Event {
         kind: SyntaxKind,
         forward_parent: Option<usize>,
     },
-    AddToken {
-        kind: SyntaxKind,
-        text: String,
-    },
+    AddToken,
     FinishNode,
     Placeholder,
 }
