@@ -18,6 +18,8 @@ impl rowan::Language for ZarnyxLanguage {
 }
 
 pub type SyntaxNode = rowan::SyntaxNode<ZarnyxLanguage>;
+pub type SyntaxToken = rowan::SyntaxToken<ZarnyxLanguage>;
+pub type SyntaxElement = rowan::SyntaxElement<ZarnyxLanguage>;
 
 #[derive(Debug, Copy, Clone, PartialEq, Hash, Eq, PartialOrd, Ord, FromPrimitive, ToPrimitive)]
 pub enum SyntaxKind {

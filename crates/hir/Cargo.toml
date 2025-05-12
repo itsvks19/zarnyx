@@ -1,9 +1,13 @@
 [package]
-name = "zarnyx"
+name = "hir"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+smol_str = "0.3.2"
+la-arena = "0.3.1"
+syntax = { path = "../syntax" }
 ast = { path = "../ast" }
-hir = { path = "../hir" }
+
+[dev-dependencies]
 parser = { path = "../parser" }
