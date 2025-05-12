@@ -1,0 +1,19 @@
+[package]
+edition = "2024"
+name = "fuzz"
+version = "0.1.0"
+
+[package.metadata]
+cargo-fuzz = true
+
+[workspace]
+
+[[bin]]
+name = "main"
+path = "fuzz_targets/main.rs"
+
+[dependencies]
+ast = { path = "../crates/ast" }
+hir = { path = "../crates/hir" }
+libfuzzer-sys = "0.3"
+parser = { path = "../crates/parser" }
